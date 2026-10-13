@@ -21,7 +21,7 @@
                 <input type="text" name="keyword" placeholder="请输入图书名称" value="<%= keyword %>">
                 <button type="submit" class="btn btn-primary">查询</button>
             </form>
-            <a href="/books/add" class="btn btn-success">新增</a>
+            <a href="/books/add<%= keyword ? '?keyword=' + encodeURIComponent(keyword) : '' %>" class="btn btn-success">新增</a>
         </div>
 
         <!-- 图书列表 -->
@@ -46,10 +46,10 @@
                             <td><%= book.typeName %></td>
                             <td><%= book.bookAuthor %></td>
                             <td><%= book.publishPress %></td>
-                            <td><%= new Date(book.creationTime).toLocaleDateString('zh-CN') %></td>
+                            <td><%= new Date(book.creationTime).toISOString().split('T')[0] %></td>
                             <td class="actions">
-                                <a href="/books/<%= book.bookId %>">查看</a>
-                                <a href="/books/<%= book.bookId %>/edit">修改</a>
+                                <a href="/books/<%= book.bookId %><%= keyword ? '?keyword=' + encodeURIComponent(keyword) : '' %>">查看</a>
+                                <a href="/books/<%= book.bookId %>/edit<%= keyword ? '?keyword=' + encodeURIComponent(keyword) : '' %>">修改</a>
                                 <a href="#" onclick="deleteBook(<%= book.bookId %>); return false;">删除</a>
                             </td>
                         </tr>
@@ -89,10 +89,14 @@
     <script>
         function deleteBook(bookId) {
             if (confirm('确定删除该图书信息？')) {
-                // 创建表单提交DELETE请求
-                const form = document.createElement('form');
+                var keyword = '<%= encodeURIComponent(keyword) %>';
+                var url = '/books/' + bookId + '?_method=DELETE';
+                if (keyword) {
+                    url += '&keyword=' + keyword;
+                }
+                var form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `/books/${bookId}?_method=DELETE`;
+                form.action = url;
                 document.body.appendChild(form);
                 form.submit();
             }

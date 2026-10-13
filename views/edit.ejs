@@ -16,6 +16,7 @@
         
         <div class="form-card">
             <form id="bookForm" action="/books/<%= book.bookId %>?_method=PUT" method="POST">
+                <input type="hidden" name="keyword" value="<%= keyword %>">
                 <div class="form-group">
                     <label>图书编号 <span class="required">*</span></label>
                     <input type="text" name="bookCode" required value="<%= book.bookCode %>">
@@ -68,12 +69,12 @@
                 
                 <div class="form-group">
                     <label>入库时间 <span class="required">*</span></label>
-                    <input type="text" value="<%= new Date(book.creationTime).toLocaleDateString('zh-CN') %>" readonly>
+                    <input type="text" value="<%= new Date(book.creationTime).toISOString().split('T')[0] %>" readonly>
                 </div>
                 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">修改</button>
-                    <a href="/books" class="btn btn-default">返回</a>
+                    <a href="/books<%= keyword ? '?keyword=' + encodeURIComponent(keyword) : '' %>" class="btn btn-default">返回</a>
                 </div>
             </form>
         </div>
