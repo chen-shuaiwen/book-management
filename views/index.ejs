@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书借阅系统后台管理</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">图书借阅系统后台管理</h1>
+        
+        <!-- 提示信息 -->
+        <% if (message) { %>
+            <div class="alert alert-success"><%= message %></div>
+        <% } %>
+
+        <!-- 搜索栏和操作按钮 -->
+        <div class="toolbar">
+            <form action="/books" method="GET" class="search-form">
+                <input type="text" name="keyword" placeholder="请输入图书名称" value="<%= keyword %>">
+                <button type="submit" class="btn btn-primary">查询</button>
+            </form>
+            <a href="/books/add" class="btn btn-success">新增</a>
+        </div>
+
+        <!-- 图书列表 -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>图书编号</th>
+                    <th>图书名称</th>
+                    <th>图书类型</th>
+                    <th>作者</th>
+                    <th>出版社</th>
+                    <th>入库时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (books.length > 0) { %>
+                    <% books.forEach((book, index) => { %>
+                        <tr class="<%= index % 2 === 0 ? 'row-even' : 'row-odd' %>">
+                            <td><%= book.bookCode %></td>
+                            <td><%= book.bookName %></td>
+                            <td><%= book.typeName %></td>
+                            <td><%= book.bookAuthor %></td>
+                            <td><%= book.publishPress %></td>
+                            <td><%= new Date(book.creationTime).toLocaleDateString('zh-CN') %></td>
+                            <td class="actions">
+                                <a href="/books/<%= book.bookId %>">查看</a>
+                                <a href="/books/<%= book.bookId %>/edit">修改</a>
+                                <a href="#" onclick="deleteBook(<%= book.bookId %>); return false;">删除</a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" class="no-data">暂无图书数据</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- 分页 -->
+        <% if (totalPages > 1) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/books?page=<%= currentPage - 1 %>&keyword=<%= encodeURIComponent(keyword) %>">上一页</a>
+                <% } %>
+                
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <span class="current"><%= i %></span>
+                    <% } else { %>
+                        <a href="/books?page=<%= i %>&keyword=<%= encodeURIComponent(keyword) %>"><%= i %></a>
+                    <% } %>
+                <% } %>
+                
+                <% if (currentPage < totalPages) { %>
+                    <a href="/books?page=<%= currentPage + 1 %>&keyword=<%= encodeURIComponent(keyword) %>">下一页</a>
+                <% } %>
+                
+                <span class="total">共 <%= total %> 条记录</span>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        function deleteBook(bookId) {
+            if (confirm('确定删除该图书信息？')) {
+                // 创建表单提交DELETE请求
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/books/${bookId}?_method=DELETE`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

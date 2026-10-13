@@ -1,0 +1,52 @@
+name: 回归测试
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: book_management
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: 设置 Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: 安装依赖
+      run: npm ci
+
+    - name: 初始化数据库
+      run: mysql -h 127.0.0.1 -u root -proot book_management < database/init.sql
+
+    - name: 运行测试
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_NAME: book_management
+      run: npm test
+
+    - name: 语法检查
+      run: |
+        node --check app.js
+        node --check routes/book.js
+        node --check controllers/bookController.js
+        node --check models/Book.js
+        node --check models/BookType.js
