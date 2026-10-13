@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bookController = require('../controllers/bookController');
 
+// 获取图书类型列表（API）— 必须在 /:id 之前定义，否则 "api" 会被当作 id 参数
+router.get('/api/types', bookController.getTypes);
+
 // 图书列表（支持分页和搜索）
 router.get('/', bookController.list);
 
@@ -22,8 +25,5 @@ router.put('/:id', bookController.update);
 
 // 删除图书
 router.delete('/:id', bookController.delete);
-
-// 获取图书类型列表（API）
-router.get('/api/types', bookController.getTypes);
 
 module.exports = router;
