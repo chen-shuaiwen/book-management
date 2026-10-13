@@ -25,9 +25,11 @@ app.get('/', (req, res) => {
     res.redirect('/books');
 });
 
-// 启动服务器
-app.listen(PORT, () => {
-    console.log(`服务器运行在 http://localhost:${PORT}`);
-});
+// 启动服务器（仅在直接运行时启动，被 require 时不启动，方便测试）
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`服务器运行在 http://localhost:${PORT}`);
+    });
+}
 
 module.exports = app;

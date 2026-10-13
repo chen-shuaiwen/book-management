@@ -22,9 +22,9 @@ describe('图书管理系统 API 测试', () => {
 
         it('应该支持搜索参数', async () => {
             const res = await request(app)
-                .get('/books?keyword=红楼梦')
+                .get('/books?keyword=' + encodeURIComponent('红楼梦'))
                 .expect(200);
-            
+
             expect(res.text).toContain('图书借阅系统后台管理');
         });
     });

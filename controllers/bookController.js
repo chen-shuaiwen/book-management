@@ -42,25 +42,31 @@ const bookController = {
     addPage: async (req, res) => {
         try {
             const bookTypes = await BookType.getAll();
-            res.render('add', { bookTypes, error: null });
+            const keyword = req.query.keyword || '';
+            res.render('add', { bookTypes, book: null, error: null, keyword });
         } catch (error) {
             console.error('获取图书类型失败:', error);
-            res.render('add', { bookTypes: [], error: '获取图书类型失败' });
+            res.render('add', { bookTypes: [], book: null, error: '获取图书类型失败', keyword: '' });
         }
     },
 
     // 保存新图书
     create: async (req, res) => {
         try {
+            const keyword = req.body.keyword || '';
             const bookId = await Book.create(req.body);
-            res.redirect(`/books?message=${encodeURIComponent('添加成功')}`);
+            const qs = keyword
+                ? `message=${encodeURIComponent('添加成功')}&keyword=${encodeURIComponent(keyword)}`
+                : `message=${encodeURIComponent('添加成功')}`;
+            res.redirect(`/books?${qs}`);
         } catch (error) {
             console.error('添加图书失败:', error);
             const bookTypes = await BookType.getAll();
-            res.render('add', { 
-                bookTypes, 
+            res.render('add', {
+                bookTypes,
                 error: '添加失败，请检查输入',
-                book: req.body 
+                book: req.body,
+                keyword: req.body.keyword || ''
             });
         }
     },
@@ -72,7 +78,8 @@ const bookController = {
             if (!book) {
                 return res.redirect(`/books?message=${encodeURIComponent('图书不存在')}`);
             }
-            res.render('detail', { book });
+            const keyword = req.query.keyword || '';
+            res.render('detail', { book, keyword });
         } catch (error) {
             console.error('获取图书详情失败:', error);
             res.redirect(`/books?message=${encodeURIComponent('获取详情失败')}`);
@@ -86,12 +93,13 @@ const bookController = {
                 Book.getById(req.params.id),
                 BookType.getAll()
             ]);
-            
+
             if (!book) {
                 return res.redirect(`/books?message=${encodeURIComponent('图书不存在')}`);
             }
-            
-            res.render('edit', { book, bookTypes, error: null });
+
+            const keyword = req.query.keyword || '';
+            res.render('edit', { book, bookTypes, error: null, keyword });
         } catch (error) {
             console.error('获取图书信息失败:', error);
             res.redirect(`/books?message=${encodeURIComponent('获取信息失败')}`);
@@ -101,11 +109,13 @@ const bookController = {
     // 更新图书
     update: async (req, res) => {
         try {
+            const keyword = req.body.keyword || '';
             const success = await Book.update(req.params.id, req.body);
+            const baseQs = keyword ? `&keyword=${encodeURIComponent(keyword)}` : '';
             if (success) {
-                res.redirect(`/books?message=${encodeURIComponent('修改成功')}`);
+                res.redirect(`/books?message=${encodeURIComponent('修改成功')}${baseQs}`);
             } else {
-                res.redirect(`/books/${req.params.id}/edit?error=${encodeURIComponent('修改失败')}`);
+                res.redirect(`/books/${req.params.id}/edit?error=${encodeURIComponent('修改失败')}${baseQs}`);
             }
         } catch (error) {
             console.error('更新图书失败:', error);
@@ -116,9 +126,13 @@ const bookController = {
     // 删除图书
     delete: async (req, res) => {
         try {
+            const keyword = req.query.keyword || '';
             const success = await Book.delete(req.params.id);
             const message = success ? '删除成功' : '删除失败';
-            res.redirect(`/books?message=${encodeURIComponent(message)}`);
+            const qs = keyword
+                ? `message=${encodeURIComponent(message)}&keyword=${encodeURIComponent(keyword)}`
+                : `message=${encodeURIComponent(message)}`;
+            res.redirect(`/books?${qs}`);
         } catch (error) {
             console.error('删除图书失败:', error);
             res.redirect(`/books?message=${encodeURIComponent('删除失败')}`);
