@@ -34,7 +34,7 @@
                 </tr>
                 <tr>
                     <th>出版日期：</th>
-                    <td><%= new Date(book.publishDate).toLocaleDateString('zh-CN') %></td>
+                    <td><%= new Date(book.publishDate).toISOString().split('T')[0] %></td>
                 </tr>
                 <tr>
                     <th>是否借阅：</th>
@@ -46,12 +46,12 @@
                 </tr>
                 <tr>
                     <th>入库时间：</th>
-                    <td><%= new Date(book.creationTime).toLocaleDateString('zh-CN') %></td>
+                    <td><%= new Date(book.creationTime).toISOString().split('T')[0] %></td>
                 </tr>
             </table>
             
             <div class="form-actions">
-                <a href="/books" class="btn btn-default">返回</a>
+                <a href="/books<%= keyword ? '?keyword=' + encodeURIComponent(keyword) : '' %>" class="btn btn-default">返回</a>
             </div>
         </div>
     </div>
